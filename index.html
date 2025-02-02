@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ku">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FLKRDSTUDIO - وێبسایتی ئیسلامی</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Enhanced Tasbih Section Styles */
+        #tasbih {
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tasbih-container {
+            max-width: 500px;
+            margin: 2rem auto;
+            padding: 2.5rem;
+            background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 188, 212, 0.2);
+            border: 2px solid rgba(0, 188, 212, 0.3);
+            position: relative;
+        }
+
+        .tasbih-counter {
+            font-size: 4.5rem;
+            color: #00bcd4;
+            margin: 1.5rem 0;
+            font-family: 'Rajdhani', sans-serif;
+            text-shadow: 0 0 20px rgba(0, 188, 212, 0.5);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 15px;
+            border: 2px solid #00bcd4;
+            transition: transform 0.3s ease;
+        }
+
+        .tasbih-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            margin-top: 2rem;
+        }
+
+        .tasbih-button {
+            padding: 1.2rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+        }
+
+        .tasbih-increment-btn {
+            background: linear-gradient(45deg, #00bcd4, #006064);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 188, 212, 0.4);
+        }
+
+        .tasbih-increment-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 10px rgba(0, 188, 212, 0.3);
+        }
+
+        .tasbih-reset-btn {
+            background: linear-gradient(45deg, #ff5252, #b71c1c);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 82, 82, 0.4);
+        }
+
+        .tasbih-options {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .dhikr-option {
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dhikr-option.active {
+            background: #00bcd4;
+            box-shadow: 0 0 15px rgba(0, 188, 212, 0.5);
+        }
+
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            background: rgba(0, 188, 212, 0.6);
+            border-radius: 50%;
+        }
+
+        @keyframes particle {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-100px) scale(0); opacity: 0; }
+        }
+
+        /* Existing other styles remain unchanged */
+    </style>
+</head>
+<body>
+    <!-- Existing header and other sections -->
+
+    <section id="tasbih">
+        <h2>FLKRD STUDIO
+تەسبیح</h2>
+        <div class="tasbih-container">
+            <div class="tasbih-counter" id="tasbih-counter-display">0</div>
+            <div class="tasbih-controls">
+                <button class="tasbih-button tasbih-increment-btn" id="tasbih-increment-btn">
+                    <i class="fas fa-hand-point-up"></i> تەسبیح بکە
+                </button>
+                <button class="tasbih-button tasbih-reset-btn" id="tasbih-reset-btn">
+                    <i class="fas fa-undo"></i> ڕێکخستنەوە
+                </button>
+            </div>
+            <div class="tasbih-options">
+                <div class="dhikr-option active" data-target="33">33x سبحان الله</div>
+                <div class="dhikr-option" data-target="33">33x الحمد لله</div>
+                <div class="dhikr-option" data-target="34">34x الله أكبر</div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Enhanced Tasbih Logic
+        function setupTasbih() {
+            const counterDisplay = document.getElementById('tasbih-counter-display');
+            const incrementButton = document.getElementById('tasbih-increment-btn');
+            const resetButton = document.getElementById('tasbih-reset-btn');
+            const dhikrOptions = document.querySelectorAll('.dhikr-option');
+            let tasbihCount = 0;
+            let currentTarget = 33;
+            let currentDhikrIndex = 0;
+
+            // Load saved state
+            const savedState = JSON.parse(localStorage.getItem('tasbihState')) || {};
+            tasbihCount = savedState.count || 0;
+            currentDhikrIndex = savedState.dhikrIndex || 0;
+            currentTarget = parseInt(dhikrOptions[currentDhikrIndex].dataset.target) || 33;
+
+            // Initialize display
+            counterDisplay.textContent = tasbihCount;
+            dhikrOptions.forEach((option, index) => 
+                index === currentDhikrIndex 
+                    ? option.classList.add('active') 
+                    : option.classList.remove('active')
+            );
+
+            // Particle animation
+            function createParticles(x, y) {
+                for(let i = 0; i < 5; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = x + 'px';
+                    particle.style.top = y + 'px';
+                    particle.style.width = Math.random() * 5 + 3 + 'px';
+                    particle.style.height = particle.style.width;
+                    document.body.appendChild(particle);
+
+                    particle.animate([
+                        { transform: `translate(${Math.random() * 20 - 10}px, 0) scale(1)`, opacity: 1 },
+                        { transform: `translate(${Math.random() * 40 - 20}px, -100px) scale(0)`, opacity: 0 }
+                    ], {
+                        duration: 1000 + Math.random() * 500,
+                        easing: 'ease-out'
+                    });
+
+                    setTimeout(() => particle.remove(), 1500);
+                }
+            }
+
+            // Increment logic
+            incrementButton.addEventListener('click', (e) => {
+                const rect = incrementButton.getBoundingClientRect();
+                createParticles(rect.left + rect.width/2, rect.top + rect.height/2);
+
+                tasbihCount++;
+                if(tasbihCount >= currentTarget) {
+                    tasbihCount = 0;
+                    currentDhikrIndex = (currentDhikrIndex + 1) % dhikrOptions.length;
+                    currentTarget = parseInt(dhikrOptions[currentDhikrIndex].dataset.target);
+                    dhikrOptions.forEach((option, index) => 
+                        index === currentDhikrIndex 
+                            ? option.classList.add('active') 
+                            : option.classList.remove('active')
+                    );
+                }
+
+                counterDisplay.textContent = tasbihCount;
+                counterDisplay.style.transform = 'scale(1.1)';
+                setTimeout(() => counterDisplay.style.transform = 'scale(1)', 200);
+
+                // Save state
+                localStorage.setItem('tasbihState', JSON.stringify({
+                    count: tasbihCount,
+                    dhikrIndex: currentDhikrIndex
+                }));
+            });
+
+            // Reset logic
+            resetButton.addEventListener('click', () => {
+                if(confirm('دڵنیای لە ڕێکخستنەوەی تەسبیح؟')) {
+                    tasbihCount = 0;
+                    currentDhikrIndex = 0;
+                    currentTarget = 33;
+                    counterDisplay.textContent = tasbihCount;
+                    dhikrOptions.forEach((option, index) => 
+                        index === 0 
+                            ? option.classList.add('active') 
+                            : option.classList.remove('active')
+                    );
+                    localStorage.removeItem('tasbihState');
+                }
+            });
+
+            // Dhikr selection
+            dhikrOptions.forEach((option, index) => {
+                option.addEventListener('click', () => {
+                    currentDhikrIndex = index;
+                    currentTarget = parseInt(option.dataset.target);
+                    tasbihCount = 0;
+                    counterDisplay.textContent = tasbihCount;
+                    dhikrOptions.forEach(opt => opt.classList.remove('active'));
+                    option.classList.add('active');
+                    localStorage.setItem('tasbihState', JSON.stringify({
+                        count: tasbihCount,
+                        dhikrIndex: currentDhikrIndex
+                    }));
+                });
+            });
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', setupTasbih);
+    </script>
+</body>
+</html>
