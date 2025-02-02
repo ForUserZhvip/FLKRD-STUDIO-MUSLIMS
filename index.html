@@ -2,11 +2,16 @@
 <html lang="ku">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>FLKRDSTUDIO - وێبسایتی ئیسلامی</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
+        /* Prevent double-tap zoom */
+        html, body {
+            touch-action: manipulation;
+        }
+
         /* Enhanced Tasbih Section Styles */
         #tasbih {
             text-align: center;
@@ -101,21 +106,11 @@
             background: rgba(0, 188, 212, 0.6);
             border-radius: 50%;
         }
-
-        @keyframes particle {
-            0% { transform: translateY(0) scale(1); opacity: 1; }
-            100% { transform: translateY(-100px) scale(0); opacity: 0; }
-        }
-
-        /* Existing other styles remain unchanged */
     </style>
 </head>
 <body>
-    <!-- Existing header and other sections -->
-
     <section id="tasbih">
-        <h2>FLKRD STUDIO
-تەسبیح</h2>
+        <h2>FLKRD STUDIO ‎تەسبیح</h2>
         <div class="tasbih-container">
             <div class="tasbih-counter" id="tasbih-counter-display">0</div>
             <div class="tasbih-controls">
@@ -135,7 +130,6 @@
     </section>
 
     <script>
-        // Enhanced Tasbih Logic
         function setupTasbih() {
             const counterDisplay = document.getElementById('tasbih-counter-display');
             const incrementButton = document.getElementById('tasbih-increment-btn');
@@ -145,88 +139,20 @@
             let currentTarget = 33;
             let currentDhikrIndex = 0;
 
-            // Load saved state
-            const savedState = JSON.parse(localStorage.getItem('tasbihState')) || {};
-            tasbihCount = savedState.count || 0;
-            currentDhikrIndex = savedState.dhikrIndex || 0;
-            currentTarget = parseInt(dhikrOptions[currentDhikrIndex].dataset.target) || 33;
-
-            // Initialize display
-            counterDisplay.textContent = tasbihCount;
-            dhikrOptions.forEach((option, index) => 
-                index === currentDhikrIndex 
-                    ? option.classList.add('active') 
-                    : option.classList.remove('active')
-            );
-
-            // Particle animation
-            function createParticles(x, y) {
-                for(let i = 0; i < 5; i++) {
-                    const particle = document.createElement('div');
-                    particle.className = 'particle';
-                    particle.style.left = x + 'px';
-                    particle.style.top = y + 'px';
-                    particle.style.width = Math.random() * 5 + 3 + 'px';
-                    particle.style.height = particle.style.width;
-                    document.body.appendChild(particle);
-
-                    particle.animate([
-                        { transform: `translate(${Math.random() * 20 - 10}px, 0) scale(1)`, opacity: 1 },
-                        { transform: `translate(${Math.random() * 40 - 20}px, -100px) scale(0)`, opacity: 0 }
-                    ], {
-                        duration: 1000 + Math.random() * 500,
-                        easing: 'ease-out'
-                    });
-
-                    setTimeout(() => particle.remove(), 1500);
-                }
-            }
-
-            // Increment logic
-            incrementButton.addEventListener('click', (e) => {
-                const rect = incrementButton.getBoundingClientRect();
-                createParticles(rect.left + rect.width/2, rect.top + rect.height/2);
-
+            incrementButton.addEventListener('click', () => {
                 tasbihCount++;
-                if(tasbihCount >= currentTarget) {
-                    tasbihCount = 0;
-                    currentDhikrIndex = (currentDhikrIndex + 1) % dhikrOptions.length;
-                    currentTarget = parseInt(dhikrOptions[currentDhikrIndex].dataset.target);
-                    dhikrOptions.forEach((option, index) => 
-                        index === currentDhikrIndex 
-                            ? option.classList.add('active') 
-                            : option.classList.remove('active')
-                    );
-                }
-
                 counterDisplay.textContent = tasbihCount;
                 counterDisplay.style.transform = 'scale(1.1)';
                 setTimeout(() => counterDisplay.style.transform = 'scale(1)', 200);
-
-                // Save state
-                localStorage.setItem('tasbihState', JSON.stringify({
-                    count: tasbihCount,
-                    dhikrIndex: currentDhikrIndex
-                }));
             });
 
-            // Reset logic
             resetButton.addEventListener('click', () => {
-                if(confirm('دڵنیای لە ڕێکخستنەوەی تەسبیح؟')) {
+                if (confirm('دڵنیای لە ڕێکخستنەوەی تەسبیح؟')) {
                     tasbihCount = 0;
-                    currentDhikrIndex = 0;
-                    currentTarget = 33;
                     counterDisplay.textContent = tasbihCount;
-                    dhikrOptions.forEach((option, index) => 
-                        index === 0 
-                            ? option.classList.add('active') 
-                            : option.classList.remove('active')
-                    );
-                    localStorage.removeItem('tasbihState');
                 }
             });
 
-            // Dhikr selection
             dhikrOptions.forEach((option, index) => {
                 option.addEventListener('click', () => {
                     currentDhikrIndex = index;
@@ -235,15 +161,10 @@
                     counterDisplay.textContent = tasbihCount;
                     dhikrOptions.forEach(opt => opt.classList.remove('active'));
                     option.classList.add('active');
-                    localStorage.setItem('tasbihState', JSON.stringify({
-                        count: tasbihCount,
-                        dhikrIndex: currentDhikrIndex
-                    }));
                 });
             });
         }
 
-        // Initialize when DOM is loaded
         document.addEventListener('DOMContentLoaded', setupTasbih);
     </script>
 </body>
